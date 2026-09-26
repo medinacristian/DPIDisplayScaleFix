@@ -1,28 +1,32 @@
 # DPIDisplayScaleFix
 
-Prototipo para comprobar si Windows 11 refresca correctamente la escala DPI del panel ASUS mediante un ciclo programático de 100% → 200%. Los archivos del proyecto están directamente en la raíz del repositorio.
+Prototipo para comprobar el refresco programático de la escala DPI de las pantallas internas de un ASUS Zenbook Duo.
 
-## Compilar y usar
+## Requisitos
 
-Requiere Windows x64 y .NET 8 SDK. Abre PowerShell en la raíz del repositorio (`C:\CrisCode\github\DPIDisplayScaleFix`) y ejecuta:
+Windows x64 y .NET 8 SDK. Abre PowerShell en la raíz del repositorio (`C:\Users\Cristian\github\DPIDisplayScaleFix`).
+
+## Diagnóstico
+
+Compila y enumera las pantallas activas sin cambiar sus escalas:
 
 ```powershell
 dotnet build -c Release
 dotnet run -c Release
 ```
 
-El modo inicial solo diagnostica. Confirma que una línea `INTERNA` corresponda al panel ASUS y que el programa informe `Coincidencia única del ASUS confirmada`. Si el identificador no aparece en la ruta del monitor, abortará intencionalmente.
+El programa identifica una o dos pantallas internas ASUS. Usa los tipos de salida integrados y el nombre de modelo `NB140B9M-T`: Windows puede reportar la segunda pantalla interna como una salida externa. No depende de `DISPLAY1` ni de la marca o cantidad de monitores externos.
 
-Cuando el diagnóstico confirme la identidad del ASUS y su escala inicial de 200%, ejecutar:
+Revisa que el diagnóstico muestre correctamente las pantallas y sus escalas antes de ejecutar el ciclo.
+
+## Ciclo de refresco
 
 ```powershell
 dotnet run -c Release -- --cycle
 ```
 
-El programa intenta cambiar el origen ASUS a 100%, espera 750 ms, vuelve a enumerar las pantallas, cambia a 200% y consulta el resultado. No modifica el registro ni establece la escala de monitores externos. No ejecutar hasta confirmar primero la identidad en modo diagnóstico.
+Para cada pantalla interna que no esté al 100%, el programa guarda su escala actual, la cambia temporalmente a 100%, espera 750 ms y restaura el valor guardado. Si todas las pantallas internas ya están al 100%, no hace nada. No modifica el registro ni cambia la escala de los monitores externos.
 
-## Límites
+## Limitaciones
 
-El cambio usa los paquetes privados `DisplayConfigGetDeviceInfo` tipo `-3` y `DisplayConfigSetDeviceInfo` tipo `-4`. El API general está documentado, pero estos paquetes y sus estructuras no lo están. La implementación toma como referencia el proyecto abierto [SetDPI](https://github.com/imniko/SetDPI), y debe validarse en este equipo antes de agregar el watcher.
-
-La tabla de escalas admitidas (100–500%) sigue el formato usado por SetDPI. El watcher, debounce, log e inicio automático quedan para etapas posteriores.
+El cambio DPI usa los paquetes no documentados `DisplayConfigGetDeviceInfo` tipo `-3` y `DisplayConfigSetDeviceInfo` tipo `-4`. La enumeración y el ciclo manual se probaron con las dos pantallas internas ASUS, un monitor LG y un ARZOPA. El watcher automático de conexiones y el inicio con Windows todavía no están implementados.
