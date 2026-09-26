@@ -1,9 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net8.0-windows</TargetFramework>
+    <TargetFramework>net10.0-windows</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
+  <ItemGroup>
+    <Compile Remove="Core/**/*.cs;tests/**/*.cs" />
+    <ProjectReference Include="Core\DPIDisplayScaleFix.Core.csproj" />
+    <InternalsVisibleTo Include="DPIDisplayScaleFix.Interop.Tests" />
+  </ItemGroup>
 </Project>
